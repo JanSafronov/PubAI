@@ -10,17 +10,31 @@ import io, os, sys
 from data.models import Area
 from data.response import SuccessResult
 
+"""Endpoint representing area and current position in it with request-response handling
+
+Returns:
+    class: Endpoint
+"""
 class Endpoint:
+    """Endpoint representing area and current position in it with request-response handling
+
+    Returns:
+        Area: Area around which unit areas the endpoint will be moving
+    """
     def __init__(self, Area: Area) -> None:
         self.Area = Area
         self.Requests = list()
         self.Stops = list()
-
+    
+    """Move current unit area into the next one
+    """
     def move_area(self) -> str:
         self.Area.current = self.Area.locations.pop(0)
         if self.Area.current in self.Stops:
             return "Stopping at:" + self.Area.current
-    
+
+    """Records requests and optionally responds back
+    """
     def record_request(self, withresponse: bool) -> bool | str:
         with sr.Microphone() as mic:
             rec = sr.Recognizer()
@@ -38,6 +52,8 @@ class Endpoint:
 
             return SuccessResult()
 
+    """Responds an operation done with the record
+    """
     def record_response(self) -> str | bool:
         openai.api_key = os.getenv("OPENAI_API_KEY")
         

@@ -5,12 +5,19 @@ import json, os, io
 
 #Node and references-node
 class Node:
+    """Node with a name
+    """
     def __init__(self, name) -> None:
         self.name = name
 
 class UnitNode(Node):
-    def __init__(self, name, references: list | Node) -> None:
-        self.name = name
+    """Unit node with a name and named references to that node
+
+    Args:
+        Node (class): Node extension that inherits the name
+    """
+    def __init__(self, name: str, references: list | Node) -> None:
+        super().__init__(name)
         self.references = references
 
     def find_reference(self, name: set) -> Node:
@@ -21,6 +28,11 @@ class UnitNode(Node):
 
 #Location and references-location
 class Location(Node):
+    """Location wih a name and latitude-longitude position
+
+    Args:
+        Node ([type]): [description]
+    """
     def __init__(self, name, latitude: float, longitude: float) -> None:
         super().__init__(name)
         self.latitude = latitude
@@ -47,7 +59,7 @@ class Area:
     def __init__(self, current: UnitArea, locations: list[UnitArea]) -> None:
         self.current = current
         self.locations = locations
-    
+
     def find_location(self, name: str) -> Node:
         return self.locations[self.locations.index(lambda unit : unit.name == name | unit.references.contains(unit.name))]
 
