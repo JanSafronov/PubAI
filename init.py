@@ -7,7 +7,8 @@ from numpy.core.shape_base import stack
 from openai.api_resources import engine
 import speech_recognition as sr, openai
 import io, os, sys
-from path import Area
+from data.models import Area
+from data.response import SuccessResult
 
 class Endpoint:
     def __init__(self, Area: Area) -> None:
@@ -20,18 +21,22 @@ class Endpoint:
         if self.Area.current in self.Stops:
             return "Stopping at:" + self.Area.current
     
-    def record_request(self) -> bool | str:
+    def record_request(self, withresponse: bool) -> bool | str:
         with sr.Microphone() as mic:
             rec = sr.Recognizer()
              
             print(mic.list_working_microphones())
             
-            data = rec.record(mic, duration=50)
+            data = rec.record(mic)
             
             text = rec.recognize_azure(data, os.environ.get("AZURE_SPEECHSERVICE_KEY"), language="he-IL", location="eastus2")
 
             self.Requests.append(text)
-            return self.record_response()
+            
+            if withresponse:
+                return self.record_response()
+
+            return SuccessResult()
 
     def record_response(self) -> str | bool:
         openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -40,7 +45,7 @@ class Endpoint:
         
         response = openai.Completion.create(
             engine="davinci-codex",
-            prompt="The following AI is a public transport assistant. He identifies questions (in hebrew) in the request and categorizes them with respect to the following available categories: Locate, Reminder, Non-Question.\n\nRequest:" + request + "\nResponse: ",
+            prompt="The following AI is a public transport assistant. He identifies questions (in hebrew) in the request and categorizes them with respect to the following available categories: Locate, Reminder, Violence, Non-Question.\n\nRequest:" + request + "\nCategory: ",
             temperature=0.8,
             max_tokens=20,
             top_p=1,
@@ -51,7 +56,7 @@ class Endpoint:
         if (response.find("Locate") != -1):
             response = openai.Completion.create(
                 engine="davinci-codex",
-                prompt="The following AI is a public transport assistant. He identifies and returns the requested location in the request (in hebrew).\n\nRequest:" + request + "\nResponse: ",
+                prompt="The following AI is a public transport assistant. He identifies and returns the requested location in the request (in hebrew).\n\nRequest:" + request + "\nLocation: ",
                 temperature=0.8,
                 max_tokens=20,
                 top_p=1,
@@ -64,7 +69,7 @@ class Endpoint:
         if (response.find("Reminder") != -1):
             response = openai.Completion.create(
                 engine="davinci-codex",
-                prompt="The following AI is a public transport assistant. He identifies and returns the requested location in the request (in hebrew).\n\nRequest:" + request + "\nResponse: ",
+                prompt="The following AI is a public transport assistant. He identifies and returns the requested location (in hebrew).\n\nRequest:" + request + "\nLocation: ",
                 temperature=0.8,
                 max_tokens=20,
                 top_p=1,

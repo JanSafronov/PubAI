@@ -1,18 +1,12 @@
+import json
 from os import environ
 import speech_recognition as sr
 import io, os, sys
-from path import Area, UnitArea
+from data.models import Area, UnitArea
+from init import Endpoint
 
-area = Area("address", UnitArea("Address0", 37.32, -65.2))
 
-with sr.Microphone() as mic:
-    rec = sr.Recognizer()
-    #rec.dynamic_energy_threshold = True
+obj = json.load(io.FileIO("areas.json"))
+area = Area(obj.current, obj.locations)
 
-    print(mic.list_working_microphones())
-    
-    data = rec.record(mic, duration=50)
-    
-    text = rec.recognize_azure(data, os.environ.get("AZURE_SPEECHSERVICE_KEY"), language="he-IL", location="eastus2")
-
-    print("here")
+Endpoint(area).record_request(True)

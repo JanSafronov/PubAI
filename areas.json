@@ -1,0 +1,28 @@
+{
+    "current": { 
+        "name": "address",
+        "latitude": 37.567,
+        "longitude": -62.42,
+        "references": [ "address0" ]
+    },
+    "locations": [
+        {
+            "name": "location0",
+            "latitude": 37.567,
+            "longitude": -62.42,
+            "references": [ "location 0", "location number 0" ]
+        },
+        {
+            "name": "location1",
+            "latitude": 38.567,
+            "longitude": -63.42,
+            "references": [ "location 1", "location one", "location number 1" ]
+        },
+        {
+            "name": "location2",
+            "latitude": 39.567,
+            "longitude": -64.42,
+            "references": [ "location 2", "location two" ]
+        }
+    ]
+}
