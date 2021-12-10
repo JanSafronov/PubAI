@@ -27,24 +27,35 @@ class Location(Node):
         self.longitude = longitude
 
 class UnitArea(Location):
+    @overload
     def __init__(self, name, latitude: float, longitude: float, references: list | Node) -> None:
         super().__init__(name, latitude, longitude)
         self.references = references
 
-    def find_reference(self, name: set) -> Node:
+    def __init__(self, json: object) -> None:
+        super().__init__(json["name"], json["latitude"], json["longitude"])
+        self.references = json["references"]
+
+    def find_reference(self, name: str) -> Node:
         return self.references.index(Node(name))
 
-    def reference_exists(self, name: set) -> bool:
+    def reference_exists(self, name: str) -> bool:
         return self.references.index(Node(name)) != -1
 
 #Area of references-locations
 class Area:
-    def __init__(self, current: UnitArea, locations: list) -> None:
+    def __init__(self, current: UnitArea, locations: list[UnitArea]) -> None:
         self.current = current
         self.locations = locations
-
-    def find_location(self, name: set) -> Node:
+    
+    def find_location(self, name: str) -> Node:
         return self.locations[self.locations.index(lambda unit : unit.name == name | unit.references.contains(unit.name))]
 
-    def location_exists(self, name: set) -> bool:
+    def find_location(self, name: str) -> Node:
+        return self.locations[self.locations.index(lambda unit : unit["name"] == name | unit.references.contains(unit["name"]))]
+
+    def location_exists(self, name: str) -> bool:
         return self.locations.__contains__(lambda unit : unit.name == name | unit.references.contains(unit.name))
+
+    def location_exists(self, name: str) -> bool:
+        return self.locations.__contains__(lambda unit : unit["name"] == name | unit.references.contains(unit["name"]))

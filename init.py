@@ -45,7 +45,7 @@ class Endpoint:
         
         response = openai.Completion.create(
             engine="davinci-codex",
-            prompt="The following AI is a public transport assistant. He identifies questions (in hebrew) in the request and categorizes them with respect to the following available categories: Locate, Reminder, Violence, Non-Question.\n\nRequest:" + request + "\nCategory: ",
+            prompt="The following AI is a public transport assistant. He identifies questions (in hebrew) in the request and categorizes them with respect to the following available categories: Locate, Reminder, Violence, None.\n\nRequest:" + request + "\nCategory: ",
             temperature=0.8,
             max_tokens=20,
             top_p=1,
@@ -53,7 +53,7 @@ class Endpoint:
             presence_penalty=0.7,
             stop=["\n", " Request:", " Category:"])
 
-        if (response.find("Locate") != -1):
+        if response.find("Locate") != -1:
             response = openai.Completion.create(
                 engine="davinci-codex",
                 prompt="The following AI is a public transport assistant. He identifies and returns the requested location in the request (in hebrew).\n\nRequest:" + request + "\nLocation: ",
@@ -66,7 +66,7 @@ class Endpoint:
 
             return self.Area.location_exists(response)
         
-        if (response.find("Reminder") != -1):
+        if response.find("Reminder") != -1:
             response = openai.Completion.create(
                 engine="davinci-codex",
                 prompt="The following AI is a public transport assistant. He identifies and returns the requested location (in hebrew).\n\nRequest:" + request + "\nLocation: ",

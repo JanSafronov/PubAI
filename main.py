@@ -7,6 +7,7 @@ from init import Endpoint
 
 
 obj = json.load(io.FileIO("areas.json"))
-area = Area(obj.current, obj.locations)
+area = Area(UnitArea(obj["current"]), obj["locations"])
 
-Endpoint(area).record_request(True)
+for i in range(len(area.locations)):
+    area.locations[i] = UnitArea(area.locations[i])
