@@ -29,8 +29,8 @@ class UnitArea(Location):
         return self.nodes.index(Node(name)) != -1
 
 class Area:
-    def __init__(self, address: str, locations: list) -> None:
-        self.address = address
+    def __init__(self, current: UnitArea, locations: list) -> None:
+        self.current = current
         self.locations = locations
 
     def find_location(self, name: set) -> Node:

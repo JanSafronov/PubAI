@@ -1,6 +1,6 @@
 from os import environ
 import math, numpy, matplotlib
-from typing import Union
+from typing import Sequence, Union
 import select, collections, genericpath
 from numpy.core.records import array
 from numpy.core.shape_base import stack
@@ -12,7 +12,13 @@ from path import Area
 class Endpoint:
     def __init__(self, Area: Area) -> None:
         self.Area = Area
-        self.Requests = stack(None)
+        self.Requests = list()
+        self.Stops = list()
+
+    def move_area(self) -> str:
+        self.Area.current = self.Area.locations.pop(0)
+        if self.Area.current in self.Stops:
+            return "Stopping at:" + self.Area.current
     
     def record_request(self) -> bool | str:
         with sr.Microphone() as mic:
@@ -34,7 +40,7 @@ class Endpoint:
         
         response = openai.Completion.create(
             engine="davinci-codex",
-            prompt="The following AI is a public transport assistant. He identifies questions (in hebrew) in the request and categorizes them with respect to the following available categories: Locate, Non-Question.\n\nRequest:" + request + "\nResponse: ",
+            prompt="The following AI is a public transport assistant. He identifies questions (in hebrew) in the request and categorizes them with respect to the following available categories: Locate, Reminder, Non-Question.\n\nRequest:" + request + "\nResponse: ",
             temperature=0.8,
             max_tokens=20,
             top_p=1,
@@ -47,7 +53,7 @@ class Endpoint:
                 engine="davinci-codex",
                 prompt="The following AI is a public transport assistant. He identifies and returns the requested location in the request (in hebrew).\n\nRequest:" + request + "\nResponse: ",
                 temperature=0.8,
-                max_tokens=150,
+                max_tokens=20,
                 top_p=1,
                 frequency_penalty=0.3,
                 presence_penalty=0.7,
@@ -55,4 +61,19 @@ class Endpoint:
 
             return self.Area.location_exists(response)
         
+        if (response.find("Reminder") != -1):
+            response = openai.Completion.create(
+                engine="davinci-codex",
+                prompt="The following AI is a public transport assistant. He identifies and returns the requested location in the request (in hebrew).\n\nRequest:" + request + "\nResponse: ",
+                temperature=0.8,
+                max_tokens=20,
+                top_p=1,
+                frequency_penalty=0.3,
+                presence_penalty=0.7,
+                stop=["\n", " Request:", " Location:"])
+
+            self.Stops.append(response)
+
+            return self.Area.location_exists(response)
+
         return None
